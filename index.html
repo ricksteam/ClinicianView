@@ -1,19 +1,71 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Hello World!</title>
-  </head>
-  <body>
-    <h1>Hello World!</h1>
-    <!-- All of the Node.js APIs are available in this renderer process. -->
-    We are using Node.js <script>document.write(process.versions.node)</script>,
-    Chromium <script>document.write(process.versions.chrome)</script>,
-    and Electron <script>document.write(process.versions.electron)</script>.
 
-    <script>
-      // You can also require other files to run in this process
-      require('./renderer.js')
-    </script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <title>Rhino Rehab: Sign In</title>
+
+  <script src="https://www.gstatic.com/firebasejs/5.0.2/firebase.js"></script>
+  <script>
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyApdU4KZoEo3UFFnigOFLQ5BqzS4INBBF0",
+      authDomain: "clinician-5062c.firebaseapp.com",
+      databaseURL: "https://clinician-5062c.firebaseio.com",
+      projectId: "clinician-5062c",
+      storageBucket: "",
+      messagingSenderId: "966676715905"
+    };
+    firebase.initializeApp(config);
+  </script>
+
+  <script src="https://cdn.firebase.com/libs/firebaseui/3.0.0/firebaseui.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.0.0/firebaseui.css" />
+  <link rel="stylesheet" type="text/css" href="mystyle.css">
+
+  <script type="text/javascript">
+    // FirebaseUI config.
+    var uiConfig = {
+      signInSuccessUrl: 'main.html',
+      signInOptions: [
+        // Leave the lines as is for the providers you want to offer your users.
+        
+        firebase.auth.EmailAuthProvider.PROVIDER_ID,
+      ],
+     
+    };
+
+    // Initialize the FirebaseUI Widget using Firebase.
+    var ui = new firebaseui.auth.AuthUI(firebase.auth());
+    // The start method will wait until the DOM is loaded.
+    ui.start('#firebaseui-auth-container', uiConfig);
+  </script>
+
+  <style>
+    .bookend{
+      height:100px;
+      vertical-align: top;
+    }
+    .flip{
+      transform: scale(-1,1);
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <div id="app">
+
+    <h1 style="padding: 4rem;"><center><h1><img src="Rhino.png" class="bookend" >Rhino Rehab<img src="Rhino.png" class="bookend flip"></h1></center></h1>
+    <div id="firebaseui-auth-container"></div>
+
+   
+  </div>
+
+
+
+  
+</body>
+
 </html>

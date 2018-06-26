@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Rhino Rehab: Clinician View</title>
+
+  <script src="https://www.gstatic.com/firebasejs/5.0.2/firebase.js"></script>
+  <script>
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyApdU4KZoEo3UFFnigOFLQ5BqzS4INBBF0",
+      authDomain: "clinician-5062c.firebaseapp.com",
+      databaseURL: "https://clinician-5062c.firebaseio.com",
+      projectId: "clinician-5062c",
+      storageBucket: "",
+      messagingSenderId: "966676715905"
+    };
+    firebase.initializeApp(config);
+  </script>
+
+  <link rel="stylesheet" type="text/css" href="mystyle.css">
+
+  <style>
+  </style>
+
+
+
+</head>
+
+<body>
+
+  <div id="app" style="height: 100%">
+
+    <div style="text-align: right; padding: 2rem;">
+      Clinician: {{user()}}.
+      <button @click="logout()">Log out</button>
+      </button>
+    </div>
+
+    <div class="container" style="background: rgba(255, 255, 255, .5); padding: 3rem; bottom: 2rem;">
+
+      <div v-if="currentView=='login'">
+        <h2>Begin Session</h2>
+        Enter the patient's id:
+        <input type="text" v-model="patient_id">
+        <button @click="beginSession()" class="button button-primary">Begin Session</button>
+
+      </div>
+      <div v-if="currentView!='login'">
+        <div>In session with patient: {{patient_id}}. Session Time: {{duration()}}.
+          <button @click="endSession()">End Session</button>
+        </div>
+        <div v-if="currentView=='start'">
+          <h2>Choose an activity</h1>
+
+            <div>
+              <button @click="launchBoxAndBlocks()" class="button button-primary">Box and Blocks</button>
+            </div>
+            <div>
+              <button @click="launchBoxAndBlocks()" class="button button-primary">Balloons</button>
+            </div>
+            <div>
+              <button @click="launchBoxAndBlocks()" class="button button-primary">Airplanes</button>
+            </div>
+            <div>
+              <button @click="launchBoxAndBlocks()" class="button button-primary">Model Car</button>
+            </div>
+        </div>
+
+        <div v-if="currentView=='clinician'">
+          <div>
+            <h2>Clinician View</h2>
+          </div>
+          <div>
+           
+          </div>
+          <div>
+            
+          </div>
+          <div>
+            <table>
+              <tr>
+<td>
+    Right Sensitivity:
+    <input type="number" min="1" max="10" v-model="leftSensitivity">
+</td>
+<td>
+
+</td>
+<td>
+    Left Sensitivity:
+    <input type="number" min="1" max="10" v-model="rightSensitivity">
+</td>
+
+              </tr>
+              <tr>
+                <td>
+                  Right visualus studius extents: xxx/xxx
+                </td>
+                <td rowspan="3">
+                  <img src="muscular.png" style="height:40rem">
+                </td>
+                <td>
+                  Left visualus studius extents: xxx/xxx
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Right eclipsus extents: xxx/xxx
+                </td>
+                <td>
+                  Left eclipsus extents: xxx/xxx
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Right netium benum extents: xxx/xxx
+                </td>
+                <td>
+                  Left netium benum extents: xxx/xxx
+                </td>
+              </tr>
+            </table>
+
+
+          </div>
+          <button @click="backToStart()" class="button button-primary">Choose a different Activity</button>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <script src='https://code.jquery.com/jquery-3.2.1.min.js'></script>
+  <script src='https://unpkg.com/vue'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js'></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>
+
+
+
+
+  <script>
+
+    var app = new Vue({
+      el: '#app',
+      data: {
+        rows: [],
+        currentView: "login",
+        patient_id: "",
+        session_start: null,
+        leftSensitivity: 5,
+        rightSensitivity: 5,
+        now: moment(),
+      },
+      methods: {
+        launchBoxAndBlocks() {
+          this.currentView = "clinician";
+        },
+        beginSession() {
+          this.currentView = "start";
+          this.session_start = moment();
+        },
+        backToStart() {
+          this.currentView = "start"
+        },
+        endSession() {
+          this.patient_id = "";
+          this.session_start = null;
+          this.currentView = "login";
+        },
+        duration() {
+          let n = this.now;
+          let s = this.session_start;
+          let d = moment.duration(n.diff(s));
+          let r = d.humanize();
+          return r;
+        },
+        logout() {
+          this.endSession();
+          window.location = "index.html"
+        },
+        user() {
+          if (firebase.auth().currentUser)
+            return firebase.auth().currentUser.email;
+          else
+            return "Waiting for credentials to arrive.";
+        }
+      },
+    });
+
+    setInterval(() => app.now = moment(), 1000);
+
+
+
+  </script>
+</body>
+
+</html>
