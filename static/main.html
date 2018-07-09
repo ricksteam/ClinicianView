@@ -19,7 +19,7 @@
     firebase.initializeApp(config);
   </script>
 
-  <link rel="stylesheet" type="text/css" href="mystyle.css">
+  <link rel="stylesheet" type="text/css" href="../mystyle.css">
 
   <style>
   </style>
@@ -43,7 +43,7 @@
       <div v-if="currentView=='login'">
         <h2>Begin Session</h2>
         Enter the patient's id:
-        <input type="text" v-model="patient_id">
+        <input type="text" id="patient_id" v-model="patient_id">
         <button @click="beginSession()" class="button button-primary">Begin Session</button>
 
       </div>
@@ -99,8 +99,8 @@
                   Right visualus studius extents: xxx/xxx
                 </td>
                 <td rowspan="3">
-                  <img src="muscular.png" style="height:40rem">
-                </td>
+                  <img src="../muscular.png" style="height:40rem">
+                </td> 
                 <td>
                   Left visualus studius extents: xxx/xxx
                 </td>
@@ -134,8 +134,8 @@
   </div>
 
 
-
   <script src='https://code.jquery.com/jquery-3.2.1.min.js'></script>
+  <script src='../socket.js'></script>
   <script src='https://unpkg.com/vue'></script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js'></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>
@@ -145,9 +145,13 @@
 
   <script>
 
+     var io = require('socket.io-client');
+  
     var app = new Vue({
       el: '#app',
       data: {
+        socket: {},
+        reply: "",
         rows: [],
         currentView: "login",
         patient_id: "",
@@ -156,12 +160,24 @@
         rightSensitivity: 5,
         now: moment(),
       },
+      mounted()
+      {
+        this.socket = io.connect("http://localhost:3000", {reconnect:true});
+        this.socket.emit("sendData", "hello");
+        this.socket.on("end", function (msg) {
+          app.reply = msg;
+          console.log(app.reply);
+        });
+      },
       methods: {
+         
         launchBoxAndBlocks() {
           this.currentView = "clinician";
+          this.socket.emit("sendData", "Box and Blocks");
         },
         beginSession() {
           this.currentView = "start";
+          this.patient_id = document.getElementById("patient_id").value;
           this.session_start = moment();
         },
         backToStart() {
@@ -189,7 +205,8 @@
           else
             return "Waiting for credentials to arrive.";
         }
-      },
+      }
+      
     });
 
     setInterval(() => app.now = moment(), 1000);
