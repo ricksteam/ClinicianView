@@ -73,25 +73,25 @@
             <h2>Clinician View</h2>
           </div>
           <div>
-           
+
           </div>
           <div>
-            
+
           </div>
           <div>
             <table>
               <tr>
-<td>
-    Right Sensitivity:
-    <input type="number" min="1" max="10" v-model="leftSensitivity">
-</td>
-<td>
+                <td>
+                  Right Sensitivity:
+                  <input type="number" min="1" max="10" v-model="leftSensitivity">
+                </td>
+                <td>
 
-</td>
-<td>
-    Left Sensitivity:
-    <input type="number" min="1" max="10" v-model="rightSensitivity">
-</td>
+                </td>
+                <td>
+                  Left Sensitivity:
+                  <input type="number" min="1" max="10" v-model="rightSensitivity">
+                </td>
 
               </tr>
               <tr>
@@ -100,7 +100,7 @@
                 </td>
                 <td rowspan="3">
                   <img src="../muscular.png" style="height:40rem">
-                </td> 
+                </td>
                 <td>
                   Left visualus studius extents: xxx/xxx
                 </td>
@@ -135,7 +135,7 @@
 
 
   <script src='https://code.jquery.com/jquery-3.2.1.min.js'></script>
-  <script src='../socket.js'></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
   <script src='https://unpkg.com/vue'></script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js'></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>
@@ -145,8 +145,7 @@
 
   <script>
 
-     var io = require('socket.io-client');
-  
+
     var app = new Vue({
       el: '#app',
       data: {
@@ -160,30 +159,47 @@
         rightSensitivity: 5,
         now: moment(),
       },
-      mounted()
-      {
-        this.socket = io.connect("http://localhost:3000", {reconnect:true});
-        this.socket.emit("sendData", "hello");
-        this.socket.on("end", function (msg) {
+      mounted() {
+        var io = require("socket.io-client/dist/socket.io");
+        this.socket = io("http://127.0.0.1:80");
+       
+        this.socket.emit("USER_CONNECT");
+       
+          
+        this.socket.on("USER_CONNECTED", function (msg) {
           app.reply = msg;
-          console.log(app.reply);
+          console.log("Client Connected " + msg.name);
+        
         });
+        this.socket.on("forClinician", function(data)
+        {
+          console.log(data);
+        });
+          
       },
       methods: {
-         
+
         launchBoxAndBlocks() {
           this.currentView = "clinician";
-          this.socket.emit("sendData", "Box and Blocks");
+          this.socket.emit("forUnity", {data: "blocks and blocks"});
         },
         beginSession() {
           this.currentView = "start";
-          this.patient_id = document.getElementById("patient_id").value;
+          var pId =  document.getElementById("patient_id").value;
+          this.patient_id = pId;
+          var type = "Clinician"; 
+        var name = "Clinician" + pId;
+          
+        this.socket.emit("GETDATA", {type: type, name:name});
           this.session_start = moment();
         },
         backToStart() {
           this.currentView = "start"
         },
         endSession() {
+          console.log("disocnnect");
+          this.socket.emit("removeClient", {name:"Clinician"+this.patient_id,type:"Clinician"});
+          //this.socket.emit("disconnect");
           this.patient_id = "";
           this.session_start = null;
           this.currentView = "login";
@@ -197,6 +213,7 @@
         },
         logout() {
           this.endSession();
+          this.socket.disconnect();
           window.location = "index.html"
         },
         user() {
@@ -206,7 +223,7 @@
             return "Waiting for credentials to arrive.";
         }
       }
-      
+
     });
 
     setInterval(() => app.now = moment(), 1000);
