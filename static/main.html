@@ -125,6 +125,7 @@
 
 
           </div>
+          <input type="text" id="gamePath"size ="25" /><button @click="setPath()">Save Game Location</button>
           <button @click="backToStart()" class="button button-primary">Choose a different Activity</button>
 
 
@@ -143,13 +144,14 @@
 
 
 
-  <script>
-
+  <script> 
 
     var app = new Vue({
       el: '#app',
       data: {
         socket: {},
+        currentGame: "",
+        gamePaths = ["D:\Unity\Editor\Unity.exe", "D:\Unity\Editor\Unity.exe", "D:\Unity\Editor\Unity.exe", "D:\Unity\Editor\Unity.exe"],
         reply: "",
         rows: [],
         currentView: "login",
@@ -160,6 +162,13 @@
         now: moment(),
       },
       mounted() {
+        switch(this.currentGame)
+           {
+            case "BoxAndBlocks":
+              
+              $("#gamePath").val(this.gamePaths[0]);
+            break;
+           }
         var io = require("socket.io-client/dist/socket.io");
         this.socket = io("http://127.0.0.1:80");
        
@@ -178,9 +187,23 @@
           
       },
       methods: {
-
+        setPath()
+        {
+          var path = $("#gamePath").val();
+           switch(this.currentGame)
+           {
+            case "BoxAndBlocks":
+              
+              this.gamePaths[0] = path;
+              $("#gamePath").val(this.gamePaths[0]);
+            break;
+           }
+        },
         launchBoxAndBlocks() {
+          this.currentGame = "BoxAndBlocks";
           this.currentView = "clinician";
+          var sh = new ActiveXObject("WScript.Shell");
+          sh.Run(UnityPath, 1); //Change path based on computer
           this.socket.emit("forUnity", {data: "blocks and blocks"});
         },
         beginSession() {
