@@ -24,7 +24,11 @@
   <style>
   </style>
 
-
+<script src="../jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+<script src='https://unpkg.com/vue'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js'></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>
 
 </head>
 
@@ -125,9 +129,8 @@
 
 
           </div>
-          <input type="text" id="gamePath"size ="25" /><button @click="setPath()">Save Game Location</button>
+          <input type="file" id="file" @change="changePath()" style="display:none"/><p id="ttt"></p><button @click="setPath()">Change Path</button><br />
           <button @click="backToStart()" class="button button-primary">Choose a different Activity</button>
-
 
         </div>
       </div>
@@ -135,23 +138,25 @@
   </div>
 
 
-  <script src='https://code.jquery.com/jquery-3.2.1.min.js'></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
-  <script src='https://unpkg.com/vue'></script>
-  <script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js'></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>
+
 
 
 
 
   <script> 
 
+  
+
+   var child = require("child_process").spawn;
+    var path = require("path");
+    var fs = require("fs");
+
     var app = new Vue({
       el: '#app',
       data: {
         socket: {},
-        currentGame: "",
-        gamePaths = ["D:\Unity\Editor\Unity.exe", "D:\Unity\Editor\Unity.exe", "D:\Unity\Editor\Unity.exe", "D:\Unity\Editor\Unity.exe"],
+        game: null, 
+        currentGame: "BoxAndBlocks",
         reply: "",
         rows: [],
         currentView: "login",
@@ -162,18 +167,12 @@
         now: moment(),
       },
       mounted() {
-        switch(this.currentGame)
-           {
-            case "BoxAndBlocks":
-              
-              $("#gamePath").val(this.gamePaths[0]);
-            break;
-           }
+        
         var io = require("socket.io-client/dist/socket.io");
         this.socket = io("http://127.0.0.1:80");
        
         this.socket.emit("USER_CONNECT");
-       
+        
           
         this.socket.on("USER_CONNECTED", function (msg) {
           app.reply = msg;
@@ -184,28 +183,48 @@
         {
           console.log(data);
         });
-          
+
+
       },
       methods: {
         setPath()
         {
-          var path = $("#gamePath").val();
-           switch(this.currentGame)
-           {
-            case "BoxAndBlocks":
-              
-              this.gamePaths[0] = path;
-              $("#gamePath").val(this.gamePaths[0]);
-            break;
-           }
+           var f = document.getElementById("file");
+            f.click();
+          
+        },
+        changePath()
+        {
+          var f = document.getElementById("file");
+          var pth = f.files[0].path.replace("\\", "\\\\")
+           this.setText(pth);
+            switch(this.currentGame)
+            {
+              case "BoxAndBlocks":
+            
+                localStorage.setItem("BoxAndBlocks", pth);
+              break;
+            }
         },
         launchBoxAndBlocks() {
           this.currentGame = "BoxAndBlocks";
           this.currentView = "clinician";
-          var sh = new ActiveXObject("WScript.Shell");
-          sh.Run(UnityPath, 1); //Change path based on computer
+          var pth = localStorage.getItem("BoxAndBlocks");
+          console.log(pth);
+        //var pathToBinary = path.join(); 
+        this.setText(pth);
+         if (fs.existsSync(pth))
+         {
+          this.game = child(pth);
           this.socket.emit("forUnity", {data: "blocks and blocks"});
+         }
+         else
+         {
+            console.error("Game location invalid");
+         }
+         
         },
+        
         beginSession() {
           this.currentView = "start";
           var pId =  document.getElementById("patient_id").value;
@@ -217,10 +236,16 @@
           this.session_start = moment();
         },
         backToStart() {
+          if (this.game != null)
+          {
+            this.game.kill();
+          }
+         
           this.currentView = "start"
         },
         endSession() {
           console.log("disocnnect");
+         
           this.socket.emit("removeClient", {name:"Clinician"+this.patient_id,type:"Clinician"});
           //this.socket.emit("disconnect");
           this.patient_id = "";
@@ -244,6 +269,17 @@
             return firebase.auth().currentUser.email;
           else
             return "Waiting for credentials to arrive.";
+        },
+        setText(txt)
+        {
+          setTimeout(function()
+          {
+            var ct = document.getElementById("ttt");
+          
+          console.log(ct == null); 
+          ct.innerHTML = txt;
+          }, 200);
+          
         }
       }
 
