@@ -24,11 +24,12 @@
   <style>
   </style>
 
-<script src="../jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
-<script src='https://unpkg.com/vue'></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js'></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>
+  <script src="../jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+  <script src='https://unpkg.com/vue'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js'></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>
 
@@ -62,13 +63,13 @@
               <button @click="launchBoxAndBlocks()" class="button button-primary">Box and Blocks</button>
             </div>
             <div>
-              <button @click="launchBoxAndBlocks()" class="button button-primary">Balloons</button>
+              <button @click="launchBalloonGame()" class="button button-primary">Balloons</button>
             </div>
             <div>
-              <button @click="launchBoxAndBlocks()" class="button button-primary">Airplanes</button>
+              <button @click="launchPlaneGame()" class="button button-primary">Airplanes</button>
             </div>
             <div>
-              <button @click="launchBoxAndBlocks()" class="button button-primary">Model Car</button>
+              <button @click="launchCarGame()" class="button button-primary">Model Car</button>
             </div>
         </div>
 
@@ -126,10 +127,13 @@
                 </td>
               </tr>
             </table>
-
+            {{kinectData}}
 
           </div>
-          <input type="file" id="file" @change="changePath()" style="display:none"/><p id="ttt"></p><button @click="setPath()">Change Path</button><br />
+          <input type="file" id="file" @change="changePath()" style="display:none" />
+          <p id="ttt">Please select the game path...</p>
+          <button @click="setPath()">Change Path</button>
+          <br />
           <button @click="backToStart()" class="button button-primary">Choose a different Activity</button>
 
         </div>
@@ -145,17 +149,20 @@
 
   <script> 
 
-  
 
-   var child = require("child_process").spawn;
+
+    var child = require("child_process").spawn;
     var path = require("path");
     var fs = require("fs");
+    var net = require("net");
+
+    var client = new net.Socket();
 
     var app = new Vue({
       el: '#app',
       data: {
         socket: {},
-        game: null, 
+        game: null,
         currentGame: "BoxAndBlocks",
         reply: "",
         rows: [],
@@ -165,122 +172,201 @@
         leftSensitivity: 5,
         rightSensitivity: 5,
         now: moment(),
+        kinectData: []
       },
       mounted() {
-        
+
         var io = require("socket.io-client/dist/socket.io");
         this.socket = io("http://127.0.0.1:80");
-       
+
         this.socket.emit("USER_CONNECT");
-        
-          
+
+
         this.socket.on("USER_CONNECTED", function (msg) {
           app.reply = msg;
           console.log("Client Connected " + msg.name);
-        
+
         });
-        this.socket.on("forClinician", function(data)
-        {
+        this.socket.on("forClinician", function (data) {
           console.log(data);
         });
 
 
       },
       methods: {
-        setPath()
-        {
-           var f = document.getElementById("file");
-            f.click();
-          
+        setPath() {
+          var f = document.getElementById("file");
+          f.click();
+
         },
-        changePath()
-        {
+        changePath() {
           var f = document.getElementById("file");
           var pth = f.files[0].path.replace("\\", "\\\\")
-           this.setText(pth);
-            switch(this.currentGame)
-            {
-              case "BoxAndBlocks":
-            
-                localStorage.setItem("BoxAndBlocks", pth);
+          this.setText(pth);
+          switch (this.currentGame) {
+            case "BoxAndBlocks":
+
+              localStorage.setItem("BoxAndBlocks", pth);
               break;
-            }
+            case "PlaneGame":
+              localStorage.setItem("PlaneGame", pth);
+              break;
+            case "BalloonGame":
+              localStorage.setItem("BalloonGame", pth);
+              break;
+            case "CarGame":
+              localStorage.setItem("CarGame", pth);
+              break;
+          }
         },
         launchBoxAndBlocks() {
           this.currentGame = "BoxAndBlocks";
           this.currentView = "clinician";
           var pth = localStorage.getItem("BoxAndBlocks");
           console.log(pth);
-        //var pathToBinary = path.join(); 
-        this.setText(pth);
-         if (fs.existsSync(pth))
-         {
-          this.game = child(pth);
-          this.socket.emit("forUnity", {data: "blocks and blocks"});
-         }
-         else
-         {
+          //var pathToBinary = path.join(); 
+          this.setText(pth);
+          if (fs.existsSync(pth)) {
+            this.game = child(pth);
+            this.socket.emit("forUnity", { data: "blocks and blocks" });
+          }
+          else {
             console.error("Game location invalid");
-         }
-         
+            this.setText("Please set valid game location...");
+          }
+
         },
-        
+        launchPlaneGame() {
+          this.currentGame = "PlaneGame";
+          this.currentView = "clinician";
+          var pth = localStorage.getItem("PlaneGame");
+          console.log(pth);
+          //var pathToBinary = path.join(); 
+          this.setText(pth);
+          if (fs.existsSync(pth)) {
+            this.game = child(pth);
+            this.socket.emit("forUnity", { data: "plane game" });
+          }
+          else {
+            console.error("Game location invalid");
+            this.setText("Please set valid game location...");
+          }
+
+        },
+        launchBalloonGame() {
+          this.currentGame = "BalloonGame";
+          this.currentView = "clinician";
+          var pth = localStorage.getItem("BalloonGame");
+          console.log(pth);
+          //var pathToBinary = path.join(); 
+          this.setText(pth);
+          if (fs.existsSync(pth)) {
+            this.game = child(pth);
+            this.socket.emit("forUnity", { data: "balloon game" });
+          }
+          else {
+            console.error("Game location invalid");
+            this.setText("Please set valid game location...");
+          }
+
+        },
+        launchCarGame() {
+          this.currentGame = "CarGame";
+          this.currentView = "clinician";
+          var pth = localStorage.getItem("CarGame");
+          console.log(pth);
+          //var pathToBinary = path.join(); 
+          this.setText(pth);
+          if (fs.existsSync(pth)) {
+            this.game = child(pth);
+            this.socket.emit("forUnity", { data: "car game" });
+          }
+          else {
+            console.error("Game location invalid");
+            this.setText("Please set valid game location...");
+          }
+
+        },
+
         beginSession() {
           this.currentView = "start";
-          var pId =  document.getElementById("patient_id").value;
+          var pId = document.getElementById("patient_id").value;
           this.patient_id = pId;
-          var type = "Clinician"; 
-        var name = "Clinician" + pId;
-          
-        this.socket.emit("GETDATA", {type: type, name:name});
+          var type = "Clinician";
+          var name = "Clinician" + pId;
+
+          this.socket.emit("GETDATA", { type: type, name: name });
           this.session_start = moment();
-        },
-        backToStart() {
-          if (this.game != null)
-          {
-            this.game.kill();
-          }
-         
-          this.currentView = "start"
-        },
-        endSession() {
-          console.log("disocnnect");
-         
-          this.socket.emit("removeClient", {name:"Clinician"+this.patient_id,type:"Clinician"});
-          //this.socket.emit("disconnect");
-          this.patient_id = "";
-          this.session_start = null;
-          this.currentView = "login";
-        },
-        duration() {
-          let n = this.now;
-          let s = this.session_start;
-          let d = moment.duration(n.diff(s));
-          let r = d.humanize();
-          return r;
-        },
-        logout() {
-          this.endSession();
-          this.socket.disconnect();
-          window.location = "index.html"
-        },
-        user() {
-          if (firebase.auth().currentUser)
-            return firebase.auth().currentUser.email;
-          else
-            return "Waiting for credentials to arrive.";
-        },
-        setText(txt)
-        {
-          setTimeout(function()
-          {
-            var ct = document.getElementById("ttt");
+
+          firebase.database().ref("sesssions").push(
+            {
+              event: "StartSession",
+              timeStamp: "" + moment(),
+              patientId: pId,
+              userId: firebase.auth().currentUser.email
+            }
+          );
           
-          console.log(ct == null); 
-          ct.innerHTML = txt;
-          }, 200);
-          
-        }
+          client.connect(1234, "127.0.0.1", function(err)
+          {
+            console.log("Get kinect Data: " + err);
+            
+          });
+          client.on("data", function(data)
+          {
+            console.log(data);
+            app.kinectData = data;
+          });
+          client.on("close", function()
+          {
+              console.log("connection closed");
+          });
+
+      },
+    backToStart() {
+      if (this.game != null) {
+        this.game.kill();
+      }
+
+      this.currentView = "start"
+    },
+    endSession() {
+      console.log("disocnnect");
+
+      this.socket.emit("removeClient", { name: "Clinician" + this.patient_id, type: "Clinician" });
+      //this.socket.emit("disconnect");
+      this.patient_id = "";
+      this.session_start = null;
+      this.currentView = "login";
+    },
+    duration() {
+      let n = this.now;
+      let s = this.session_start;
+      let d = moment.duration(n.diff(s));
+      let r = d.humanize();
+      return r;
+    },
+    logout() {
+      this.endSession();
+      this.socket.disconnect();
+      window.location = "../index.html";
+    },
+    user() {
+      if (firebase.auth().currentUser)
+        return firebase.auth().currentUser.email;
+      else
+        return "Waiting for credentials to arrive.";
+    },
+    setText(txt)
+    {
+      setTimeout(function () {
+        var ct = document.getElementById("ttt");
+
+        console.log(ct == null);
+        ct.innerHTML = txt;
+      }, 200);
+
+    }
       }
 
     });
