@@ -78,7 +78,7 @@
             <h2>Clinician View</h2>
           </div>
           <div>
-
+            <button @click="toggleHoop()">Toggle Hoop Oscillation</button>{{planeGameSettings}}
           </div>
           <div>
 
@@ -172,7 +172,8 @@
         leftSensitivity: 5,
         rightSensitivity: 5,
         now: moment(),
-        kinectData: []
+        kinectData: [],
+        planeGameSettings: {oscillation: false}
       },
       mounted() {
 
@@ -189,6 +190,11 @@
         });
         this.socket.on("forClinician", function (data) {
           console.log(data);
+
+          if (data.type == "toggleHoop")
+          {
+            app.planeGameSettings.oscillation = data.value;
+          }
         });
 
 
@@ -287,7 +293,10 @@
           }
 
         },
-
+        toggleHoop()
+        {
+          this.socket.emit("forUnity", { data: "toggleHoop"}); 
+        },
         beginSession() {
           this.currentView = "start";
           var pId = document.getElementById("patient_id").value;
