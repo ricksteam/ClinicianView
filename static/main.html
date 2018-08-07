@@ -78,7 +78,28 @@
             <h2>Clinician View</h2>
           </div>
           <div>
-            <button @click="toggleHoop()">Toggle Hoop Oscillation</button>{{planeGameSettings}}
+            <div id="planeSettings">
+              <button @click="planeAction('startGame')">Start Level</button>
+              <button @click="planeAction('restartGame')">Restart Game</button>
+              <br />
+              <input @change="planeAction('toggleHoop')" size="25" id="hoop" type="checkbox" value="hooposcillation" />Hoop Oscillation
+              <p id="spdLabel">Oscillation Speed: 0.05</p>
+              <input type="range" @change="planeAction('hoopSpeed')" min="0.05" max="10" value="0.05" class="slider" id="oscillationSpd" step="0.01"/>
+            </div>
+            <div id="boxSettings">
+              Comming Soon
+
+            </div>
+            <div id="carSettings">
+              Coming Soon
+
+            </div>
+            <div id="ballonSettings">
+              Coming Soon
+
+            </div>
+
+            <!--<button @click="toggleHoop()">Toggle Hoop Oscillation</button>{{planeGameSettings}}-->
           </div>
           <div>
 
@@ -172,8 +193,7 @@
         leftSensitivity: 5,
         rightSensitivity: 5,
         now: moment(),
-        kinectData: [],
-        planeGameSettings: {oscillation: false}
+        kinectData: []
       },
       mounted() {
 
@@ -189,11 +209,16 @@
 
         });
         this.socket.on("forClinician", function (data) {
-          console.log(data);
-
-          if (data.type == "toggleHoop")
+          console.log(data.data);
+          var hoop = document.getElementById("hoop");
+          var hoopSpd = document.getElementById("oscillationSpd");
+          if (data.type == "toggleHoop") {
+            hoop.checked = (data.data == "True") ? true : false;
+            //app.planeGameSettings.oscillation = data.data;
+          }
+          else if(data.type == "hoopSpeed")
           {
-            app.planeGameSettings.oscillation = data.value;
+            hoopSpd.value = parseInt(data.data);
           }
         });
 
@@ -225,9 +250,22 @@
               break;
           }
         },
+        settingPanel(box, plane, car, balloon) {
+          var boxDiv = document.getElementById("boxSettings");
+          var planeDiv = document.getElementById("planeSettings");
+          var carDiv = document.getElementById("carSettings");
+          var balloonDiv = document.getElementById("balloonSettings");
+
+          boxDiv.style.display = box;
+          planeDiv.style.display = plane;
+          carDiv.style.display = car;
+          balloonDiv.style.display = balloon;
+        },
         launchBoxAndBlocks() {
           this.currentGame = "BoxAndBlocks";
           this.currentView = "clinician";
+
+          app.settingPanel("block", "none", "none", "none");
           var pth = localStorage.getItem("BoxAndBlocks");
           console.log(pth);
           //var pathToBinary = path.join(); 
@@ -242,9 +280,12 @@
           }
 
         },
+
         launchPlaneGame() {
           this.currentGame = "PlaneGame";
           this.currentView = "clinician";
+
+          app.settingPanel("none", "block", "none", "none");
           var pth = localStorage.getItem("PlaneGame");
           console.log(pth);
           //var pathToBinary = path.join(); 
@@ -262,6 +303,8 @@
         launchBalloonGame() {
           this.currentGame = "BalloonGame";
           this.currentView = "clinician";
+
+          app.settingPanel("none", "none", "none", "block");
           var pth = localStorage.getItem("BalloonGame");
           console.log(pth);
           //var pathToBinary = path.join(); 
@@ -279,6 +322,8 @@
         launchCarGame() {
           this.currentGame = "CarGame";
           this.currentView = "clinician";
+
+          app.settingPanel("none", "none", "block", "none");
           var pth = localStorage.getItem("CarGame");
           console.log(pth);
           //var pathToBinary = path.join(); 
@@ -293,13 +338,38 @@
           }
 
         },
-        toggleHoop()
-        {
-          this.socket.emit("forUnity", { data: "toggleHoop"}); 
+        planeAction(action) {
+          var hoop = document.getElementById("hoop");
+          var hoopSpd = document.getElementById("oscillationSpd");
+          switch (action) {
+            case "startGame":
+              this.socket.emit("forUnity", { "type": "startGame", "data": "" });
+
+              break;
+            case "restartGame":
+              this.socket.emit("forUnity", { "type": "restartGame", "data": "" });
+              break;
+            case "toggleHoop":
+              this.socket.emit("forUnity", { "type": "toggleHoop", "data": "" + hoop.checked });
+              break;
+            case "hoopSpeed":
+            document.getElementById("spdLabel").innerHTML = "Oscillation Speed: " + hoopSpd.value;
+            this.socket.emit("forUnity", { "type": "hoopSpeed", "data": "" + hoopSpd.value });
+             
+              break;
+          }
+
         },
         beginSession() {
-          this.currentView = "start";
+
           var pId = document.getElementById("patient_id").value;
+          if (pId == "" || pId.length > 25) {
+            document.getElementById("patient_id").placeholder = "Enter a valid patient id!";
+            document.getElementById("patient_id").value = "";
+            return;
+          }
+
+          this.currentView = "start";
           this.patient_id = pId;
           var type = "Clinician";
           var name = "Clinician" + pId;
@@ -315,67 +385,63 @@
               userId: firebase.auth().currentUser.email
             }
           );
-          
-          client.connect(1234, "127.0.0.1", function(err)
-          {
+
+          client.connect(1234, "127.0.0.1", function (err) {
             console.log("Get kinect Data: " + err);
-            
+
           });
-          client.on("data", function(data)
-          {
+          client.on("data", function (data) {
             console.log(data);
             app.kinectData = data;
           });
-          client.on("close", function()
-          {
-              console.log("connection closed");
+          client.on("close", function () {
+            console.log("connection closed");
           });
 
-      },
-    backToStart() {
-      if (this.game != null) {
-        this.game.kill();
-      }
+        },
+        backToStart() {
+          if (this.game != null) {
+            this.game.kill();
+          }
 
-      this.currentView = "start"
-    },
-    endSession() {
-      console.log("disocnnect");
+          this.currentView = "start"
+        },
+        endSession() {
+          console.log("disocnnect");
 
-      this.socket.emit("removeClient", { name: "Clinician" + this.patient_id, type: "Clinician" });
-      //this.socket.emit("disconnect");
-      this.patient_id = "";
-      this.session_start = null;
-      this.currentView = "login";
-    },
-    duration() {
-      let n = this.now;
-      let s = this.session_start;
-      let d = moment.duration(n.diff(s));
-      let r = d.humanize();
-      return r;
-    },
-    logout() {
-      this.endSession();
-      this.socket.disconnect();
-      window.location = "../index.html";
-    },
-    user() {
-      if (firebase.auth().currentUser)
-        return firebase.auth().currentUser.email;
-      else
-        return "Waiting for credentials to arrive.";
-    },
-    setText(txt)
-    {
-      setTimeout(function () {
-        var ct = document.getElementById("ttt");
+          this.socket.emit("removeClient", { name: "Clinician" + this.patient_id, type: "Clinician" });
+          //this.socket.emit("disconnect");
+          this.patient_id = "";
+          this.session_start = null;
+          this.currentView = "login";
+        },
+        duration() {
+          let n = this.now;
+          let s = this.session_start;
+          let d = moment.duration(n.diff(s));
+          let r = d.humanize();
+          return r;
+        },
+        logout() {
+          this.endSession();
+          this.socket.disconnect();
+          window.location = "../index.html";
+        },
+        user() {
+          if (firebase.auth().currentUser)
+            return firebase.auth().currentUser.email;
+          else
+            return "Waiting for credentials to arrive.";
+        },
+        setText(txt) {
+          setTimeout(function () {
+            var ct = document.getElementById("ttt");
 
-        console.log(ct == null);
-        ct.innerHTML = txt;
-      }, 200);
+            console.log(ct == null);
+            ct.innerHTML = txt;
+          }, 200);
 
-    }
+        }
       }
 
     });
