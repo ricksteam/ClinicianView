@@ -78,23 +78,23 @@
             <h2>Clinician View</h2>
           </div>
           <div>
-            <div id="planeSettings">
+            <div v-if="currentGame=='PlaneGame'" id="planeSettings">
               <button @click="planeAction('startGame')">Start Level</button>
               <button @click="planeAction('restartGame')">Restart Game</button>
               <br />
               <input @change="planeAction('toggleHoop')" size="25" id="hoop" type="checkbox" value="hooposcillation" />Hoop Oscillation
-              <p id="spdLabel">Oscillation Speed: 0.05</p>
-              <input type="range" @change="planeAction('hoopSpeed')" min="0.05" max="10" value="0.05" class="slider" id="oscillationSpd" step="0.01"/>
+              <p id="diffLabel">Difficulty: 1</p>
+              <input type="range" @change="planeAction('difficulty')" min="0.02" max="10" value="1" class="slider" id="difficulty" step="0.01"/>
             </div>
-            <div id="boxSettings">
+            <div v-if="currentGame=='BoxAndBlocks'" id="boxSettings">
               Comming Soon
 
             </div>
-            <div id="carSettings">
+            <div v-if="currentGame=='CarGame'" id="carSettings">
               Coming Soon
 
             </div>
-            <div id="ballonSettings">
+            <div v-if="currentGame=='BalloonGame'" id="ballonSettings">
               Coming Soon
 
             </div>
@@ -148,7 +148,8 @@
                 </td>
               </tr>
             </table>
-            {{kinectData}}
+            {{kinectDataLeft}}<br />
+            {{kinectDataRight}}
 
           </div>
           <input type="file" id="file" @change="changePath()" style="display:none" />
@@ -193,7 +194,8 @@
         leftSensitivity: 5,
         rightSensitivity: 5,
         now: moment(),
-        kinectData: []
+        kinectDataRight: [],
+        kinectDataLeft: []
       },
       mounted() {
 
@@ -211,15 +213,26 @@
         this.socket.on("forClinician", function (data) {
           console.log(data.data);
           var hoop = document.getElementById("hoop");
-          var hoopSpd = document.getElementById("oscillationSpd");
+          var diff = document.getElementById("difficulty");
           if (data.type == "toggleHoop") {
             hoop.checked = (data.data == "True") ? true : false;
             //app.planeGameSettings.oscillation = data.data;
           }
-          else if(data.type == "hoopSpeed")
+          else if(data.type == "difficulty")
           {
-            hoopSpd.value = parseInt(data.data);
+            console.log("diff RETURN");
+            diff.value = parseFloat(data.data);
+            
           }
+          else if(data.type == "kinectDataRight")
+          {
+            
+            app.kinectDataRight = data.data;
+           }
+           else if(data.type == "kinectDataLeft")
+          {
+            app.kinectDataLeft = data.data;
+           }
         });
 
 
@@ -250,22 +263,12 @@
               break;
           }
         },
-        settingPanel(box, plane, car, balloon) {
-          var boxDiv = document.getElementById("boxSettings");
-          var planeDiv = document.getElementById("planeSettings");
-          var carDiv = document.getElementById("carSettings");
-          var balloonDiv = document.getElementById("balloonSettings");
 
-          boxDiv.style.display = box;
-          planeDiv.style.display = plane;
-          carDiv.style.display = car;
-          balloonDiv.style.display = balloon;
-        },
         launchBoxAndBlocks() {
           this.currentGame = "BoxAndBlocks";
           this.currentView = "clinician";
 
-          app.settingPanel("block", "none", "none", "none");
+
           var pth = localStorage.getItem("BoxAndBlocks");
           console.log(pth);
           //var pathToBinary = path.join(); 
@@ -285,7 +288,7 @@
           this.currentGame = "PlaneGame";
           this.currentView = "clinician";
 
-          app.settingPanel("none", "block", "none", "none");
+
           var pth = localStorage.getItem("PlaneGame");
           console.log(pth);
           //var pathToBinary = path.join(); 
@@ -304,7 +307,7 @@
           this.currentGame = "BalloonGame";
           this.currentView = "clinician";
 
-          app.settingPanel("none", "none", "none", "block");
+
           var pth = localStorage.getItem("BalloonGame");
           console.log(pth);
           //var pathToBinary = path.join(); 
@@ -323,7 +326,7 @@
           this.currentGame = "CarGame";
           this.currentView = "clinician";
 
-          app.settingPanel("none", "none", "block", "none");
+
           var pth = localStorage.getItem("CarGame");
           console.log(pth);
           //var pathToBinary = path.join(); 
@@ -340,7 +343,7 @@
         },
         planeAction(action) {
           var hoop = document.getElementById("hoop");
-          var hoopSpd = document.getElementById("oscillationSpd");
+          var diff = document.getElementById("difficulty");
           switch (action) {
             case "startGame":
               this.socket.emit("forUnity", { "type": "startGame", "data": "" });
@@ -352,9 +355,9 @@
             case "toggleHoop":
               this.socket.emit("forUnity", { "type": "toggleHoop", "data": "" + hoop.checked });
               break;
-            case "hoopSpeed":
-            document.getElementById("spdLabel").innerHTML = "Oscillation Speed: " + hoopSpd.value;
-            this.socket.emit("forUnity", { "type": "hoopSpeed", "data": "" + hoopSpd.value });
+            case "difficulty":
+            document.getElementById("diffLabel").innerHTML = "Difficulty: " + diff.value;
+            this.socket.emit("forUnity", { "type": "difficulty", "data": "" + diff.value });
              
               break;
           }
@@ -386,17 +389,20 @@
             }
           );
 
-          client.connect(1234, "127.0.0.1", function (err) {
+          /*client.connect(1234, "127.0.0.1", function (err) {
             console.log("Get kinect Data: " + err);
 
           });
           client.on("data", function (data) {
-            console.log(data);
-            app.kinectData = data;
+            //console.log(data);
+            var str = new TextDecoder("utf-8").decode(data);
+            
+            //console.log(arr);
+            app.kinectData = str;
           });
           client.on("close", function () {
             console.log("connection closed");
-          });
+          });*/
 
         },
         backToStart() {
