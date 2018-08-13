@@ -87,15 +87,21 @@
               <input type="range" @change="planeAction('difficulty')" min="0.02" max="10" value="1" class="slider" id="difficulty" step="0.01"/>
             </div>
             <div v-if="currentGame=='BoxAndBlocks'" id="boxSettings">
-              Comming Soon
-
+              <button @click="boxAction('startGame')">Start Level</button>
+              <button @click="boxAction('restartGame')">Restart Game</button>
+              
             </div>
             <div v-if="currentGame=='CarGame'" id="carSettings">
-              Coming Soon
+                <button @click="carAction('startGame')">Start Level</button>
+                <button @click="carAction('restartGame')">Restart Game</button>
 
             </div>
             <div v-if="currentGame=='BalloonGame'" id="ballonSettings">
-              Coming Soon
+                <button @click="balloonAction('startGame')">Start Level</button>
+                <button @click="balloonAction('restartGame')">Restart Game</button>
+                <p id="shiftLabel">Balloon Shift: 0</p>
+                <input type="range" @change="balloonAction('shift')" min="-1" max="0" value="-0.5" class="slider" id="shift" step="0.1"/>
+                
 
             </div>
 
@@ -214,6 +220,7 @@
           console.log(data.data);
           var hoop = document.getElementById("hoop");
           var diff = document.getElementById("difficulty");
+          var shift = document.getElementById("shift");
           if (data.type == "toggleHoop") {
             hoop.checked = (data.data == "True") ? true : false;
             //app.planeGameSettings.oscillation = data.data;
@@ -223,6 +230,10 @@
             console.log("diff RETURN");
             diff.value = parseFloat(data.data);
             
+          }
+          else if(data.type == "shift")
+          {
+            shift.value = parseFloat(data.data);
           }
           else if(data.type == "kinectDataRight")
           {
@@ -361,6 +372,33 @@
              
               break;
           }
+
+        },
+        balloonAction(action)
+        {
+          var shift = document.getElementById("shift");
+          switch (action) {
+            case "startGame":
+              this.socket.emit("forUnity", { "type": "startGame", "data": "" });
+
+              break;
+            case "restartGame":
+              this.socket.emit("forUnity", { "type": "restartGame", "data": "" });
+              break;
+            case "shift":
+            document.getElementById("shiftLabel").innerHTML = "Balloon Shift: " + shift.value;
+              this.socket.emit("forUnity", { "type": "shift", "data": "" + shift.value });
+              break;
+          
+          }
+          
+        },
+        boxAction(action)
+        {
+
+        },
+        carAction(action)
+        {
 
         },
         beginSession() {
