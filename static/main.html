@@ -82,12 +82,13 @@
               <button @click="planeAction('startGame')">Start Level</button>
               <button @click="planeAction('restartGame')">Restart Game</button>
               <br />
-              <input @change="planeAction('toggleHoop')" size="25" id="hoop" type="checkbox" value="hooposcillation" />Hoop Oscillation
+              <input @change="planeAction('toggleHoop')" size="25" id="hoop" type="checkbox" value="hooposcillation" /><hr />Hoop Oscillation
               <p id="diffLabel">Difficulty: 1</p>
               <input type="range" @change="planeAction('difficulty')" min="0.02" max="10" value="1" class="slider" id="difficulty" step="0.01"/>
             </div>
             <div v-if="currentGame=='BoxAndBlocks'" id="boxSettings">
-              <button @click="boxAction('startGame')">Start Level</button>
+              <button @click="boxAction('leftHand')">Left Hand</button>
+              <button @click="boxAction('rightHand')">Right Hand</button><br /><hr />
               <button @click="boxAction('restartGame')">Restart Game</button>
               
             </div>
@@ -98,7 +99,7 @@
             </div>
             <div v-if="currentGame=='BalloonGame'" id="ballonSettings">
                 <button @click="balloonAction('startGame')">Start Level</button>
-                <button @click="balloonAction('restartGame')">Restart Game</button>
+                <button @click="balloonAction('restartGame')">Restart Game</button><hr />
                 <p id="shiftLabel">Balloon Shift: 0</p>
                 <input type="range" @change="balloonAction('shift')" min="-1" max="0" value="-0.5" class="slider" id="shift" step="0.1"/>
                 
@@ -395,7 +396,18 @@
         },
         boxAction(action)
         {
-
+            switch (action)
+            {
+              case "leftHand":
+                this.socket.emit("forUnity", {type: "leftHand", "data": ""});
+              break;
+              case "rightHand":
+                this.socket.emit("forUnity", {type: "rightHand", "data": ""});
+              break;
+              case "restartGame":
+                this.socket.emit("forUnity", {type: "restartGame", "data": ""});
+              break;
+            }
         },
         carAction(action)
         {
