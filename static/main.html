@@ -87,8 +87,15 @@
               <input type="range" @change="planeAction('difficulty')" min="0.02" max="10" value="1" class="slider" id="difficulty" step="0.01"/>
             </div>
             <div v-if="currentGame=='BoxAndBlocks'" id="boxSettings">
-              <button @click="boxAction('leftHand')">Left Hand</button>
-              <button @click="boxAction('rightHand')">Right Hand</button><br /><hr />
+              <button @click="boxAction('leftHand')" id="boxSettingsButton" onclick="buttonClicked()">Left Hand</button>
+              <button @click="boxAction('rightHand')" id ="boxSettingsButton" onclick="buttonClicked()">Right Hand</button><br /><hr />
+              <script>
+                function buttonClicked() 
+                {
+                  document.getElementById("boxSettingsButton").style.backgroundColor = "black";
+                  document.getElementById("boxSettingsButton").style.color = "white";
+                }
+              </script>
               <button @click="boxAction('restartGame')">Restart Game</button>
               
             </div>
