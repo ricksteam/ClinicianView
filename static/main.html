@@ -82,7 +82,7 @@
               <button @click="planeAction('startGame')">Start Level</button>
               <button @click="planeAction('restartGame')">Restart Game</button>
               <br />
-              <input @change="planeAction('toggleHoop')" size="25" id="hoop" type="checkbox" value="hooposcillation" /><hr />Hoop Oscillation
+              <input @change="planeAction('toggleHoop')" size="25" id="hoop" type="checkbox" value="hooposcillation" />Hoop Oscillation<hr />
               <p id="diffLabel">Difficulty: 1</p>
               <input type="range" @change="planeAction('difficulty')" min="0.02" max="10" value="1" class="slider" id="difficulty" step="0.01"/>
             </div>
