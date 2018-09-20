@@ -87,16 +87,24 @@
               <input type="range" @change="planeAction('difficulty')" min="0.02" max="10" value="1" class="slider" id="difficulty" step="0.01"/>
             </div>
             <div v-if="currentGame=='BoxAndBlocks'" id="boxSettings">
-              <button @click="boxAction('leftHand')" id="boxSettingsButton" onclick="buttonClicked()">Left Hand</button>
-              <button @click="boxAction('rightHand')" id ="boxSettingsButton" onclick="buttonClicked()">Right Hand</button><br /><hr />
+              <button @click="boxAction('leftHand')" id="boxSettingsButton1" onclick="buttonClicked(this.id)">Left Hand</button>
+              <button @click="boxAction('rightHand')" id ="boxSettingsButton2" onclick="buttonClicked(this.id)">Right Hand</button><br /><hr />
               <script>
-                function buttonClicked() 
+                function buttonClicked(clickedID) 
                 {
-                  document.getElementById("boxSettingsButton").style.backgroundColor = "black";
-                  document.getElementById("boxSettingsButton").style.color = "white";
+                  document.getElementById(clickedID).style.backgroundColor = "black";
+                  document.getElementById(clickedID).style.color = "white";
+                }
+
+                function noHands()
+                {
+                  document.getElementById("boxSettingsButton1").style.background = "rgba(255, 255, 255, .05)";
+                  document.getElementById("boxSettingsButton1").style.color = "black";
+                  document.getElementById("boxSettingsButton2").style.background = "rgba(255, 255, 255, .05)";
+                  document.getElementById("boxSettingsButton2").style.color = "black";
                 }
               </script>
-              <button @click="boxAction('restartGame')">Restart Game</button>
+              <button @click="boxAction('restartGame')" onclick="noHands()">Restart Game</button>
               
             </div>
             <div v-if="currentGame=='CarGame'" id="carSettings">
