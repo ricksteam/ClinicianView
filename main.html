@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Rhino Rehab: Clinician View</title>
+
+  <!--Style-->
+  <link rel="stylesheet" type="text/css" href="mystyle.css">
+  <link rel="stylesheet" type="text/css" href="skeleton.css">
+
+  <!--Scripts-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.18/vue.min.js"></script>
+  <script src="js/amazon-cognito-identity.min.js"></script>  
+  <script src="js/config.js"></script>
+  <script src="mainscript.js"></script> 
+  <!--<script src="main.js"></script>-->
+  </head>
+  <body>
+    <div>
+        <div style="text-align: right; padding: 2rem;">
+            <label for="email_value">Welcome back</span></label><label id="email_value"></label>
+            <button type="button" onclick="signOut()">Log out</button>
+            </button>
+          </div>
+    </div>
+
+
+    <div class="container" style="background: rgba(255, 255, 255, .5); padding: 3rem; bottom: 2rem;">
+
+      <div v-if="currentView=='login'">
+        <h2>Begin Session</h2>
+        Enter the patient's id:
+        <input type="text" id="patient_id" v-model="patient_id">
+        <button @click="beginSession()" class="button button-primary">Begin Session</button>
+
+      </div>
+      <div v-if="currentView!='login'">
+        <div>In session with patient: {{patient_id}}. Session Time: {{duration()}}.
+          <button @click="endSession()">End Session</button>
+        </div>
+        <div v-if="currentView=='start'">
+          <h2>Choose an activity</h1>
+
+            <!--<div>
+              <button @click="launchBoxAndBlocks()" class="button button-primary">Box and Blocks</button>
+            </div>
+            <div>
+              <button @click="launchBalloonGame()" class="button button-primary">Balloons</button>
+            </div>-->
+            <div>
+              <button onclick="launchPlaneGame()" class="button button-primary">Airplanes</button>
+            </div>
+            <!--<div>
+              <button @click="launchCarGame()" class="button button-primary">Model Car</button>
+            </div>-->
+        </div>
+
+        <div v-if="currentView=='clinician'">
+          <div>
+            <h2>Clinician View</h2>
+          </div>
+          <div>
+            <div v-if="currentGame=='PlaneGame'" id="planeSettings">
+              <button @click="planeAction('startGame')">Start Level</button>
+              <button @click="planeAction('restartGame')">Restart Game</button>
+              <br />
+              <input @change="planeAction('toggleHoop')" size="25" id="hoop" type="checkbox" value="hooposcillation" />Hoop Oscillation<hr/>
+              <p id="diffLabel">Difficulty: 1</p>
+              <input type="range" @change="planeAction('difficulty')" min="0.02" max="10" value="1" class="slider" id="difficulty" step="0.01"/>
+            </div>
+            <div v-if="currentGame=='BoxAndBlocks'" id="boxSettings">
+              <button @click="boxAction('leftHand')" id = "boxSettingsButton1" onclick="buttonClicked(this.id)">Left Hand</button>
+              <button @click="boxAction('rightHand')" id = "boxSettingsButton2" onclick="buttonClicked(this.id)">Right Hand</button><br /><hr />
+
+              <script>
+
+                function buttonClicked(clickedID)
+                {
+                  document.getElementById(clickedID).style.backgroundColor = "black";
+                  document.getElementById(clickedID).style.color = "white";
+                }
+
+                function noHands()
+                {
+                  document.getElementById("boxSettingsButton1").style.backgroundColor = "rgba(255, 255, 255, .2)";
+                  document.getElementById("boxSettingsButton1").style.color = "black";
+
+                  document.getElementById("boxSettingsButton2").style.backgroundColor = "rgba(255, 255, 255, .2)";
+                  document.getElementById("boxSettingsButton2").style.color = "black";
+                }
+              </script>
+
+              <button @click="boxAction('restartGame')" onclick="noHands()">Restart Game</button>
+              
+            </div>
+            <div v-if="currentGame=='CarGame'" id="carSettings">
+                <button @click="carAction('startGame')">Start Level</button>
+                <button @click="carAction('restartGame')">Restart Game</button>
+
+            </div>
+            <div v-if="currentGame=='BalloonGame'" id="ballonSettings">
+                <button @click="balloonAction('startGame')">Start Level</button>
+                <button @click="balloonAction('restartGame')">Restart Game</button><hr />
+                <p id="shiftLabel">Balloon Shift: 0</p>
+                <input type="range" @change="balloonAction('shift')" min="-1" max="0" value="-0.5" class="slider" id="shift" step="0.1"/>
+                
+
+            </div>
+
+            <!--<button @click="toggleHoop()">Toggle Hoop Oscillation</button>{{planeGameSettings}}-->
+          </div>
+          <div>
+
+          </div>
+          <div>
+            <table>
+              <tr>
+                <td>
+                  Right Sensitivity:
+                  <input type="number" min="1" max="10" v-model="leftSensitivity">
+                </td>
+                <td>
+
+                </td>
+                <td>
+                  Left Sensitivity:
+                  <input type="number" min="1" max="10" v-model="rightSensitivity">
+                </td>
+
+              </tr>
+              <tr>
+                <td>
+                  Right visualus studius extents: xxx/xxx
+                </td>
+                <td rowspan="3">
+                  <!--<img src="../muscular.png" style="height:40rem">-->
+                </td>
+                <td>
+                  Left visualus studius extents: xxx/xxx
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Right eclipsus extents: xxx/xxx
+                </td>
+                <td>
+                  Left eclipsus extents: xxx/xxx
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Right netium benum extents: xxx/xxx
+                </td>
+                <td>
+                  Left netium benum extents: xxx/xxx
+                </td>
+              </tr>
+            </table>
+            {{kinectDataLeft}}<br />
+            {{kinectDataRight}}
+
+          </div>
+          <input type="file" id="file" @change="changePath()" style="display:none" />
+          <p id="ttt">Please select the game path...</p>
+          <button @click="setPath()">Change Path</button>
+          <br />
+          <button @click="backToStart()" class="button button-primary">Choose a different Activity</button>
+
+    <script>
+      var poolData = {
+        UserPoolId : _config.cognito.userPoolId,
+        ClientId : _config.cognito.clientId,
+      };
+
+
+
+
+      var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+      var cognitoUser = userPool.getCurrentUser();
+
+        window.onload = function(){
+          if(cognitoUser != null){
+            cognitoUser.getSession(function(err,session){
+              if(err){
+                alert(err);
+                return;
+              }
+
+              console.log('session validity: ' + session.isValid());
+
+                cognitoUser.getUserAttributes(function(err, result){
+                  if(err){
+                    console.log(err);
+                    return;
+                  }
+                  console.log(result);
+                  document.getElementById("email_value").innerHTML = result[2].getValue();
+                });
+            });
+          }
+        }
+
+        function signOut(){
+          if(cognitoUser != null){
+            cognitoUser.signOut();
+            location.href='index2.html';
+          }
+        }
+    </script>
+
+  </body>
+  </html>
+
+
+
+
+
+
+
+ 

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Rhino Rehab: Sign In</title>
+
+    <!--Style-->
+  <link rel="stylesheet" type="text/css" href="mystyle.css">
+  <link rel="stylesheet" type="text/css" href="skeleton.css">
+  <style>
+    .bookend{
+      height:100px;
+      vertical-align: top;
+    }
+    .flip{
+      transform: scale(-1,1);
+    }
+  </style>
+
+  <!--Scripts-->
+  <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script> 
+  <script src="js/amazon-cognito-auth.min.js"></script>
+  <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script> 
+  <script src="js/amazon-cognito-identity.min.js"></script>  
+  <script src="js/config.js"></script>
+
+</head>
+
+<body>
+
+  <div id="app">
+
+      <div id="noCognitoMessage" class="configMessage" style="display: none;">
+          <div class="backdrop"></div>
+          <div class="panel panel-default">
+              <div class="panel-heading">
+                  <h3 class="panel-title">No Cognito User Pool Configured</h3>
+              </div>
+              <div class="panel-body">
+                  <p>There is no user pool configured in <a href="/js/config.js">/js/config.js</a>. </p>
+              </div>
+          </div>
+      </div>
+
+    <h1 style="padding: 4rem;"><center><h1><img src="Rhino.png" class="bookend" >Rhino Rehab<img src="Rhino.png" class="bookend flip"></h1></center></h1>
+    <div>
+        <h3><center>Sign In</center></h3>
+        <section class="form-wrap">
+          <form id="registrationForm">
+              <center><input type="text" id="inputUsername" placeholder="Email" name="username" required autofocus></br></center>
+              <center><input type="password" id="inputPassword" placeholder="Password" name="password" required></br></center>
+              <center><button type="button" onclick="signInButton()">Sign In</button></center>
+          </form>
+      </section>
+  
+      <script>
+        function signInButton(){
+          var authenticationData = {
+            Username : document.getElementById("inputUsername").value,
+            Password : document.getElementById("inputPassword").value,
+          };
+
+          var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
+
+            var poolData = {
+              UserPoolId : _config.cognito.userPoolId,
+              ClientId : _config.cognito.clientId,
+            };
+
+            var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+
+          var userData = {
+            Username : document.getElementById("inputUsername").value,
+            Pool : userPool,
+          };
+
+          var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+            cognitoUser.authenticateUser(authenticationDetails,{
+            onSuccess: function (result) {
+              location.href='main.html';
+			      var accessToken = result.getAccessToken().getJwtToken();
+			      console.log(accessToken);
+            },
+
+              onFailure: function(err){
+                alert(err.message || JSON.stringify(err));
+              },
+            });
+        }
+
+
+
+      </script>
+</body>
+
+</html>

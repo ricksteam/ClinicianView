@@ -1,71 +1,100 @@
 <!DOCTYPE html>
-<html>
 
-<head>
-  <meta charset="UTF-8">
-  <title>Rhino Rehab: Sign In</title>
+<html lang = "en">
+    <head>
+        <meta charset="utf-8">
+        <title>Rhino Rehab: Sign In</title>
 
-  <script src="https://www.gstatic.com/firebasejs/5.0.2/firebase.js"></script>
-  <script>
-    // Initialize Firebase
-    var config = {
-      apiKey: "AIzaSyApdU4KZoEo3UFFnigOFLQ5BqzS4INBBF0",
-      authDomain: "clinician-5062c.firebaseapp.com",
-      databaseURL: "https://clinician-5062c.firebaseio.com",
-      projectId: "clinician-5062c",
-      storageBucket: "",
-      messagingSenderId: "966676715905"
-    };
-    firebase.initializeApp(config);
-  </script>
+        <!--style-->
+        <link rel="stylesheet" type="text/css" href="mystyle.css">
+        <link rel="stylesheet" type="text/css" href="skeleton.css">
+        <style>
+                .bookend{
+                  height:100px;
+                  vertical-align: top;
+                }
+                .flip{
+                  transform: scale(-1,1);
+                }
+        </style>
 
-  <script src="https://cdn.firebase.com/libs/firebaseui/3.0.0/firebaseui.js"></script>
-  <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.0.0/firebaseui.css" />
-  <link rel="stylesheet" type="text/css" href="mystyle.css">
+        <!--scripts-->
+        <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script> 
+        <script src="js/amazon-cognito-auth.min.js"></script>
+        <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script> 
+        <script src="js/amazon-cognito-identity.min.js"></script>  
+        <script src="js/config.js"></script>
+    </head>
 
-  <script type="text/javascript">
-    // FirebaseUI config.
-  var uiConfig = {
-      signInSuccessUrl: 'static/main.html',
-      signInOptions: [
-        // Leave the lines as is for the providers you want to offer your users.
-        
-        firebase.auth.EmailAuthProvider.PROVIDER_ID,
-      ],
-     
-    };
+    <body>
+        <h1 style="padding: 4rem;"><center><h1><img src="Rhino.png" class="bookend" >Rhino Rehab<img src="Rhino.png" class="bookend flip"></h1></center></h1>
+        <center><h1 id="titleheader">Register</h1></center>
+        <center><input type="personalname" class="form-control" id="personalnameRegister" placeholder="Name" pattern=".*" required></center>
+        <center><input type="email" class="form-control" id="emailInputRegister" placeholder="Email" pattern=".*" required></center>
+	    <center><input type="password" class="form-control" id="passwordInputRegister" placeholder="Password" pattern=".*" required></center>
+        <center><input type="password" class="form-control" id="confirmationpassword" placeholder="Confirm Password" pattern=".*" required></center>
+        <center><button id="mainbutton" class="btn btn-lg btn-primary btn-block" type="button" onclick="registerButton()" >Register</button></center>
+        <center><button id="signIn" type="button" onclick="window.location.href ='index2.html'" >Sign In</button></center>
+    </body>
 
-    // Initialize the FirebaseUI Widget using Firebase.
-    var ui = new firebaseui.auth.AuthUI(firebase.auth());
-    // The start method will wait until the DOM is loaded.
-    ui.start('#firebaseui-auth-container', uiConfig);
-  </script>
+    <script>
 
-  <style>
-    .bookend{
-      height:100px;
-      vertical-align: top;
-    }
-    .flip{
-      transform: scale(-1,1);
-    }
-  </style>
+        var username;
+        var password;
+        var name;
+        var poolData;
 
-</head>
+        function registerButton() {
+            personalName = document.getElementById("personalnameRegister").value;
+            username = document.getElementById("emailInputRegister").value;
 
-<body>
+            if(document.getElementById("passwordInputRegister").value != document.getElementById("confirmationpassword").value){
+                alert("passwords do not match")
+                throw "passwords do not match"
+            } else {
+                password = document.getElementById("passwordInputRegister").value;
+            }
 
-  <div id="app">
+            poolData = {
+                UserPoolId : _config.cognito.userPoolId,
+                ClientId : _config.cognito.clientId,
+            };
 
-    <h1 style="padding: 4rem;"><center><h1><img src="Rhino.png" class="bookend" >Rhino Rehab<img src="Rhino.png" class="bookend flip"></h1></center></h1>
-    <div id="firebaseui-auth-container"></div>
+        var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
-   
-  </div>
+        var attributeList = [];
+
+        var dataEmail = {
+            Name : 'email',
+            Value : username,
+        };
+
+        var dataPersonalName = {
+            Name : 'name',
+            Value : personalName,
+        };
+
+        var attributeEmail = new AmazonCognitoIdentity.CognitoUserAttribute(dataEmail);
+        var attributePersonalName = new AmazonCognitoIdentity.CognitoUserAttribute(dataPersonalName);
+
+        attributeList.push(attributeEmail);
+        attributeList.push(attributePersonalName);
+
+        userPool.signUp(username, password, attributeList, null, function(err, result)
+        {
+            if(err)
+            {
+                alert(err.message || JSON.stringify(err));
+                return;
+            }
+            cognitoUser = result.user;
+            console.log('user name is ' + cognitoUser.getUsername());
+            document.getElementById("titleheader").innerHTML = "Check your email for a verification link";
+        });
+                
+        }
+    </script>
 
 
-
-  
-</body>
 
 </html>
