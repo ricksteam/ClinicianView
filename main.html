@@ -13,7 +13,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.18/vue.min.js"></script>
   <script src="js/amazon-cognito-identity.min.js"></script>  
   <script src="js/config.js"></script>
-  <script src="mainscript.js"></script> 
+  <script src="mainscript.js" defer></script> 
   <!--<script src="main.js"></script>-->
   </head>
 
@@ -63,6 +63,8 @@
             <h2>Clinician View</h2>
           </div>
           <div>
+
+            <!--view for plane game-->
             <div v-if="currentGame=='PlaneGame'" id="planeSettings">
               <button @click="planeAction('startGame')">Start Level</button>
               <button @click="planeAction('restartGame')">Restart Game</button>
@@ -71,6 +73,8 @@
               <p id="diffLabel">Difficulty: 1</p>
               <input type="range" @change="planeAction('difficulty')" min="0.02" max="10" value="1" class="slider" id="difficulty" step="0.01"/>
             </div>
+
+            <!--view for box and blocks-->
             <div v-if="currentGame=='BoxAndBlocks'" id="boxSettings">
               <button @click="boxAction('leftHand')" id = "boxSettingsButton1" onclick="buttonClicked(this.id)">Left Hand</button>
               <button @click="boxAction('rightHand')" id = "boxSettingsButton2" onclick="buttonClicked(this.id)">Right Hand</button><br /><hr />
@@ -94,13 +98,16 @@
               </script>
 
               <button @click="boxAction('restartGame')" onclick="noHands()">Restart Game</button>
-              
             </div>
+
+            <!--view for car game-->
             <div v-if="currentGame=='CarGame'" id="carSettings">
                 <button @click="carAction('startGame')">Start Level</button>
                 <button @click="carAction('restartGame')">Restart Game</button>
 
             </div>
+
+            <!--view for balloon game-->
             <div v-if="currentGame=='BalloonGame'" id="ballonSettings">
                 <button @click="balloonAction('startGame')">Start Level</button>
                 <button @click="balloonAction('restartGame')">Restart Game</button><hr />
@@ -170,7 +177,8 @@
           <button @click="backToStart()" class="button button-primary">Choose a different Activity</button>
           </div>
 
-    <script>
+          <!--sign in stuff not needed rn-->
+    <!--<script>
       var poolData = {
         UserPoolId : _config.cognito.userPoolId,
         ClientId : _config.cognito.clientId,
@@ -210,7 +218,7 @@
             location.href='index2.html';
           }
         }
-    </script>
+    </script>-->
   </body>
   </html>
 

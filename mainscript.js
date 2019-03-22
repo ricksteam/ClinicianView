@@ -12,16 +12,16 @@
     var client = new net.Socket();
 
     var container = document.getElementById('container');
-    
+
       var app = new Vue({
         el: '#app',
         data: {
           socket: {},
           game: null,
+          currentView: "login",
           currentGame: "BoxAndBlocks",
           reply: "",
           rows: [],
-          currentView: "login",
           patient_id: "",
           session_start: null,
           leftSensitivity: 5,
