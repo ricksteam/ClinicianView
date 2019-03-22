@@ -1,5 +1,4 @@
     
-    var Vue = require("vue");
     var moment = require("moment");
     var child = require("child_process").spawn;
     var path = require("path");
