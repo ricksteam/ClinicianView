@@ -16,7 +16,9 @@
   <script src="mainscript.js"></script> 
   <!--<script src="main.js"></script>-->
   </head>
+
   <body>
+    <div id="app">
     <div>
         <div style="text-align: right; padding: 2rem;">
             <label for="email_value">Welcome back</span></label><label id="email_value"></label>
@@ -166,6 +168,7 @@
           <button @click="setPath()">Change Path</button>
           <br />
           <button @click="backToStart()" class="button button-primary">Choose a different Activity</button>
+          </div>
 
     <script>
       var poolData = {
@@ -208,7 +211,6 @@
           }
         }
     </script>
-
   </body>
   </html>
 

@@ -1,95 +1,77 @@
-
-
- 
-    var child = require("child_process").execFile;
-    //var path = "PlaneGame\PlaneGame.exe";
+    
+    var Vue = require("vue");
+    var moment = require("moment");
+    var child = require("child_process").spawn;
     var path = require("path");
-
-  /*child(path, function(err, data){
-    if(err){
-      console.error(err);
-      return;
-    }
-
-    console.log(data.toString());
-  });*/
-
-
-
-
-
-
-
-
-
-  
-  
-
     var fs = require("fs");
     var net = require("net");
-
+    var express = require('express');
+    var app = express();
+    var http = require("http").Server(app);
+    var io = require('socket.io')(http);
     var client = new net.Socket();
+
+    var container = document.getElementById('container');
     
-    var app = new Vue({
-      el: '#app',
-      data: {
-        socket: {},
-        game: null,
-        currentGame: "BoxAndBlocks",
-        reply: "",
-        rows: [],
-        currentView: "login",
-        patient_id: "",
-        session_start: null,
-        leftSensitivity: 5,
-        rightSensitivity: 5,
-        now: moment(),
-        kinectDataRight: [],
-        kinectDataLeft: [],
-        maxIdLength: 25
-      },
-      mounted() {
+      var app = new Vue({
+        el: '#app',
+        data: {
+          socket: {},
+          game: null,
+          currentGame: "BoxAndBlocks",
+          reply: "",
+          rows: [],
+          currentView: "login",
+          patient_id: "",
+          session_start: null,
+          leftSensitivity: 5,
+          rightSensitivity: 5,
+          now: moment(),
+          kinectDataRight: [],
+          kinectDataLeft: [],
+          maxIdLength: 25
+        },
+        mounted() {
+          var self = this; 
+          io.on('connection', function(socket){
+            self.socket=socket;
+            socket.on("USER_CONNECTED", function (msg) {
+              app.reply = msg;
+              console.log("Client Connected " + msg.name);
+    
+            });
+            socket.on("forClinician", function (data) {
+              console.log(data.data);
+              var hoop = document.getElementById("hoop");
+              var diff = document.getElementById("difficulty");
+              var shift = document.getElementById("shift");
+              if (data.type == "toggleHoop") {
+                hoop.checked = (data.data == "True") ? true : false;
+                //app.planeGameSettings.oscillation = data.data;
+              }
+              else if(data.type == "difficulty")
+              {
+                console.log("diff RETURN");
+                diff.value = parseFloat(data.data);
+                
+              }
+              else if(data.type == "shift")
+              {
+                shift.value = parseFloat(data.data);
+              }
+              else if(data.type == "kinectDataRight")
+              {
+                
+                app.kinectDataRight = data.data;
+              }
+              else if(data.type == "kinectDataLeft")
+              {
+                app.kinectDataLeft = data.data;
+              }
+            });
+          });
 
-        var io = require("socket.io-client/dist/socket.io");
-        this.socket = io("http://127.0.0.1:80");
-
-        this.socket.emit("USER_CONNECT");
-
-
-        this.socket.on("USER_CONNECTED", function (msg) {
-          app.reply = msg;
-          console.log("Client Connected " + msg.name);
-
-        });
-        this.socket.on("forClinician", function (data) {
-          console.log(data.data);
-          var hoop = document.getElementById("hoop");
-          var diff = document.getElementById("difficulty");
-          var shift = document.getElementById("shift");
-          if (data.type == "toggleHoop") {
-            hoop.checked = (data.data == "True") ? true : false;
-            //app.planeGameSettings.oscillation = data.data;
-          }
-          else if(data.type == "difficulty")
-          {
-            console.log("diff RETURN");
-            diff.value = parseFloat(data.data);
-            
-          }
-          else if(data.type == "shift")
-          {
-            shift.value = parseFloat(data.data);
-          }
-          else if(data.type == "kinectDataRight")
-          {
-            
-            app.kinectDataRight = data.data;
-           }
-           else if(data.type == "kinectDataLeft")
-          {
-            app.kinectDataLeft = data.data;
-           }
-        });
+        
 
 
       },
@@ -284,7 +266,7 @@
             }
           );
 
-          client.connect(1234, "127.0.0.1", function (err) {
+          /*client.connect(1234, "127.0.0.1", function (err) {
             console.log("Get kinect Data: " + err);
 
           });
@@ -297,7 +279,7 @@
           });
           client.on("close", function () {
             console.log("connection closed");
-          });
+          });*/
 
         },
         backToStart() {
@@ -308,7 +290,7 @@
           this.currentView = "start"
         },
         endSession() {
-          console.log("disconnect");
+          console.log("disocnnect");
 
           this.socket.emit("removeClient", { name: "Clinician" + this.patient_id, type: "Clinician" });
           //this.socket.emit("disconnect");
@@ -347,4 +329,4 @@
 
     });
 
-    setInterval(() => app.now = moment(), 1000);
+    //setInterval(() => app.now = moment(), 1000);

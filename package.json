@@ -24,9 +24,12 @@
     "express": "^4.16.3",
     "fs": "^0.0.1-security",
     "jquery": "^3.3.1",
+    "moment": "^2.24.0",
     "net": "^1.0.2",
     "path": "^0.12.7",
     "socket.io": "^2.1.1",
-    "socket.io-client": "^2.1.1"
+    "socket.io-client": "^2.1.1",
+    "vue": "^2.6.9",
+    "vue-cli": "^2.9.6"
   }
 }
