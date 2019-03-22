@@ -10,21 +10,18 @@
   <link rel="stylesheet" type="text/css" href="skeleton.css">
 
   <!--Scripts-->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.18/vue.min.js"></script>
-  <script src="js/amazon-cognito-identity.min.js"></script>  
-  <script src="js/config.js"></script>
-  <script src="mainscript.js" defer></script> 
-  <!--<script src="main.js"></script>-->
-  </head>
 
-  <body>
-    <div id="app">
+  <!--<script src="main.js"></script>-->
+</head>
+
+<body>
+  <div id="app">
     <div>
-        <div style="text-align: right; padding: 2rem;">
-            <label for="email_value">Welcome back</span></label><label id="email_value"></label>
-            <button type="button" onclick="signOut()">Log out</button>
-            </button>
-          </div>
+      <div style="text-align: right; padding: 2rem;">
+        <label for="email_value">Welcome back</span></label><label id="email_value"></label>
+        <button type="button" onclick="signOut()">Log out</button>
+        </button>
+      </div>
     </div>
 
 
@@ -69,26 +66,30 @@
               <button @click="planeAction('startGame')">Start Level</button>
               <button @click="planeAction('restartGame')">Restart Game</button>
               <br />
-              <input @change="planeAction('toggleHoop')" size="25" id="hoop" type="checkbox" value="hooposcillation" />Hoop Oscillation<hr/>
+              <input @change="planeAction('toggleHoop')" size="25" id="hoop" type="checkbox"
+                value="hooposcillation" />Hoop Oscillation
+              <hr />
               <p id="diffLabel">Difficulty: 1</p>
-              <input type="range" @change="planeAction('difficulty')" min="0.02" max="10" value="1" class="slider" id="difficulty" step="0.01"/>
+              <input type="range" @change="planeAction('difficulty')" min="0.02" max="10" value="1" class="slider"
+                id="difficulty" step="0.01" />
             </div>
 
             <!--view for box and blocks-->
             <div v-if="currentGame=='BoxAndBlocks'" id="boxSettings">
-              <button @click="boxAction('leftHand')" id = "boxSettingsButton1" onclick="buttonClicked(this.id)">Left Hand</button>
-              <button @click="boxAction('rightHand')" id = "boxSettingsButton2" onclick="buttonClicked(this.id)">Right Hand</button><br /><hr />
+              <button @click="boxAction('leftHand')" id="boxSettingsButton1" onclick="buttonClicked(this.id)">Left
+                Hand</button>
+              <button @click="boxAction('rightHand')" id="boxSettingsButton2" onclick="buttonClicked(this.id)">Right
+                Hand</button><br />
+              <hr />
 
               <script>
 
-                function buttonClicked(clickedID)
-                {
+                function buttonClicked(clickedID) {
                   document.getElementById(clickedID).style.backgroundColor = "black";
                   document.getElementById(clickedID).style.color = "white";
                 }
 
-                function noHands()
-                {
+                function noHands() {
                   document.getElementById("boxSettingsButton1").style.backgroundColor = "rgba(255, 255, 255, .2)";
                   document.getElementById("boxSettingsButton1").style.color = "black";
 
@@ -102,18 +103,20 @@
 
             <!--view for car game-->
             <div v-if="currentGame=='CarGame'" id="carSettings">
-                <button @click="carAction('startGame')">Start Level</button>
-                <button @click="carAction('restartGame')">Restart Game</button>
+              <button @click="carAction('startGame')">Start Level</button>
+              <button @click="carAction('restartGame')">Restart Game</button>
 
             </div>
 
             <!--view for balloon game-->
             <div v-if="currentGame=='BalloonGame'" id="ballonSettings">
-                <button @click="balloonAction('startGame')">Start Level</button>
-                <button @click="balloonAction('restartGame')">Restart Game</button><hr />
-                <p id="shiftLabel">Balloon Shift: 0</p>
-                <input type="range" @change="balloonAction('shift')" min="-1" max="0" value="-0.5" class="slider" id="shift" step="0.1"/>
-                
+              <button @click="balloonAction('startGame')">Start Level</button>
+              <button @click="balloonAction('restartGame')">Restart Game</button>
+              <hr />
+              <p id="shiftLabel">Balloon Shift: 0</p>
+              <input type="range" @change="balloonAction('shift')" min="-1" max="0" value="-0.5" class="slider"
+                id="shift" step="0.1" />
+
 
             </div>
 
@@ -175,10 +178,10 @@
           <button @click="setPath()">Change Path</button>
           <br />
           <button @click="backToStart()" class="button button-primary">Choose a different Activity</button>
-          </div>
+        </div>
 
-          <!--sign in stuff not needed rn-->
-    <!--<script>
+        <!--sign in stuff not needed rn-->
+        <!--<script>
       var poolData = {
         UserPoolId : _config.cognito.userPoolId,
         ClientId : _config.cognito.clientId,
@@ -219,13 +222,13 @@
           }
         }
     </script>-->
-  </body>
-  </html>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.18/vue.min.js"></script>
+  <script src="js/amazon-cognito-identity.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="mainscript.js"></script>
+</body>
 
-
-
-
-
-
-
- 
+</html>
