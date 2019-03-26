@@ -41,18 +41,18 @@
         <div v-if="currentView=='start'">
           <h2>Choose an activity</h1>
 
-            <!--<div>
+            <div>
               <button @click="launchBoxAndBlocks()" class="button button-primary">Box and Blocks</button>
             </div>
             <div>
               <button @click="launchBalloonGame()" class="button button-primary">Balloons</button>
-            </div>-->
-            <div>
-              <button onclick="launchPlaneGame()" class="button button-primary">Airplanes</button>
             </div>
-            <!--<div>
+            <div>
+              <button @click="launchPlaneGame()" class="button button-primary">Airplanes</button>
+            </div>
+            <div>
               <button @click="launchCarGame()" class="button button-primary">Model Car</button>
-            </div>-->
+            </div>
         </div>
 
         <div v-if="currentView=='clinician'">

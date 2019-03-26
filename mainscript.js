@@ -179,6 +179,7 @@
           }
 
         },
+        
         planeAction(action) {
           var hoop = document.getElementById("hoop");
           var diff = document.getElementById("difficulty");
@@ -279,8 +280,8 @@
           client.on("close", function () {
             console.log("connection closed");
           });*/
-
         },
+
         backToStart() {
           if (this.game != null) {
             this.game.kill();
@@ -289,9 +290,9 @@
           this.currentView = "start"
         },
         endSession() {
-          console.log("disocnnect");
+          console.log("disconnect");
 
-          this.socket.emit("removeClient", { name: "Clinician" + this.patient_id, type: "Clinician" });
+          //this.socket.emit("removeClient", { name: "Clinician" + this.patient_id, type: "Clinician" });
           //this.socket.emit("disconnect");
           this.patient_id = "";
           this.session_start = null;
