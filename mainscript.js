@@ -292,7 +292,7 @@
         endSession() {
           console.log("disconnect");
 
-          //this.socket.emit("removeClient", { name: "Clinician" + this.patient_id, type: "Clinician" });
+          //this.$socket.emit("removeClient", { name: "Clinician" + this.patient_id, type: "Clinician" });
           //this.socket.emit("disconnect");
           this.patient_id = "";
           this.session_start = null;
