@@ -31,6 +31,15 @@
           maxIdLength: 25
         },
         mounted() {
+          this.fakeMounted();
+
+        
+
+
+      },
+      methods: {
+        fakeMounted(){
+          //console.log("mounted");
           var self = this; 
           io.on('connection', function(socket){
             self.socket=socket;
@@ -69,12 +78,7 @@
               }
             });
           });
-
-        
-
-
-      },
-      methods: {
+        },
         setPath() {
           var f = document.getElementById("file");
           f.click();
@@ -328,5 +332,8 @@
       }
 
     });
+    http.listen(3000,function(){
+      console.log("listening on 3000");
+    })
 
     //setInterval(() => app.now = moment(), 1000);
