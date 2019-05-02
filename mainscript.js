@@ -261,15 +261,6 @@
           this.socket.emit("GETDATA", { type: type, name: name });
           this.session_start = moment();
 
-          firebase.database().ref("sesssions").push(
-            {
-              event: "StartSession",
-              timeStamp: "" + moment(),
-              patientId: pId,
-              userId: firebase.auth().currentUser.email
-            }
-          );
-
           /*client.connect(1234, "127.0.0.1", function (err) {
             console.log("Get kinect Data: " + err);
 
@@ -315,9 +306,6 @@
           window.location = "../index.html";
         },
         user() {
-          if (firebase.auth().currentUser)
-            return firebase.auth().currentUser.email;
-          else
             return "Waiting for credentials to arrive.";
         },
         setText(txt) {
